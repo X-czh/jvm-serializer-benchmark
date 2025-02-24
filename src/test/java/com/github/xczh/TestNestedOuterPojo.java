@@ -10,10 +10,10 @@ public class TestNestedOuterPojo {
 
   public static TestNestedOuterPojo getInstance() {
     TestNestedOuterPojo pojo = new TestNestedOuterPojo();
-    pojo.i1 = new TestNestedInnerPojo();
-    pojo.i2 = new TestNestedInnerPojo();
-    pojo.i3 = new TestNestedInnerPojo();
-    pojo.i4 = new TestNestedInnerPojo();
+    pojo.i1 = TestNestedInnerPojo.getInstance();
+    pojo.i2 = TestNestedInnerPojo.getInstance();
+    pojo.i3 = TestNestedInnerPojo.getInstance();
+    pojo.i4 = TestNestedInnerPojo.getInstance();
     return pojo;
   }
 
