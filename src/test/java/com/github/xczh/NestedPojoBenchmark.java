@@ -11,8 +11,10 @@ import org.apache.flink.core.memory.DataInputView;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
@@ -23,40 +25,49 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(value = 1)
 @State(Scope.Benchmark)
 public class NestedPojoBenchmark {
-  public static final TestNestedPojo POJO = TestNestedPojo.getInstance();
+  public static final TestNestedOuterPojo POJO = TestNestedOuterPojo.getInstance();
 
-  public TypeSerializer<TestNestedPojo> furySerializer = new FurySerializer<>(TestNestedPojo.class);
-  public TypeSerializer<TestNestedPojo> flinkPojoSerializer =
-      TypeExtractor.createTypeInfo(TestNestedPojo.class)
+  @State(Scope.Benchmark)
+  public static class BenchmarkState {
+
+    public DataOutputSerializer out;
+
+    @Setup(Level.Invocation)
+    public void setUpPerInvocation() {
+      out = new DataOutputSerializer(128);
+    }
+  }
+
+  public TypeSerializer<TestNestedOuterPojo> furySerializer =
+      new FurySerializer<>(TestNestedOuterPojo.class);
+  public TypeSerializer<TestNestedOuterPojo> flinkPojoSerializer =
+      TypeExtractor.createTypeInfo(TestNestedOuterPojo.class)
           .createSerializer(new SerializerConfigImpl());
-  public TypeSerializer<TestNestedPojo> kryoSerializer =
-      new KryoSerializer<>(TestNestedPojo.class, new SerializerConfigImpl());
+  public TypeSerializer<TestNestedOuterPojo> kryoSerializer =
+      new KryoSerializer<>(TestNestedOuterPojo.class, new SerializerConfigImpl());
 
   public static void main(String[] args) throws Exception {
     org.openjdk.jmh.Main.main(args);
   }
 
   @Benchmark
-  public void testFury() throws IOException {
-    DataOutputSerializer out = new DataOutputSerializer(64);
-    furySerializer.serialize(POJO, out);
-    DataInputView in = new DataInputDeserializer(out.wrapAsByteBuffer());
+  public void testFury(BenchmarkState state) throws IOException {
+    furySerializer.serialize(POJO, state.out);
+    DataInputView in = new DataInputDeserializer(state.out.wrapAsByteBuffer());
     furySerializer.deserialize(in);
   }
 
   @Benchmark
-  public void testFlinkPojo() throws IOException {
-    DataOutputSerializer out = new DataOutputSerializer(64);
-    flinkPojoSerializer.serialize(POJO, out);
-    DataInputView in = new DataInputDeserializer(out.wrapAsByteBuffer());
+  public void testFlinkPojo(BenchmarkState state) throws IOException {
+    flinkPojoSerializer.serialize(POJO, state.out);
+    DataInputView in = new DataInputDeserializer(state.out.wrapAsByteBuffer());
     flinkPojoSerializer.deserialize(in);
   }
 
   @Benchmark
-  public void testKryo() throws IOException {
-    DataOutputSerializer out = new DataOutputSerializer(64);
-    kryoSerializer.serialize(POJO, out);
-    DataInputView in = new DataInputDeserializer(out.wrapAsByteBuffer());
+  public void testKryo(BenchmarkState state) throws IOException {
+    kryoSerializer.serialize(POJO, state.out);
+    DataInputView in = new DataInputDeserializer(state.out.wrapAsByteBuffer());
     kryoSerializer.deserialize(in);
   }
 }

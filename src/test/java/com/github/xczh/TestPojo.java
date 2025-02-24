@@ -29,7 +29,7 @@ public class TestPojo {
     pojo.d9 = 3.5f;
     pojo.d10 = 123456789.12345f;
     pojo.s11 = "abcdef";
-    pojo.s12 = "abcdef一二三四五六test测试123456";
+    pojo.s12 = "abcdef测试123456";
     return pojo;
   }
 
