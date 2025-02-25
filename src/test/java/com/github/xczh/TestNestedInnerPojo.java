@@ -19,8 +19,7 @@ public class TestNestedInnerPojo {
       return false;
     }
     TestNestedInnerPojo testPoJo = (TestNestedInnerPojo) o;
-    return Objects.equals(p1, testPoJo.p1)
-        && Objects.equals(p2, testPoJo.p2);
+    return Objects.equals(p1, testPoJo.p1) && Objects.equals(p2, testPoJo.p2);
   }
 
   @Override

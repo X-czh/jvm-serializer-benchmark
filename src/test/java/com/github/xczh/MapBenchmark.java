@@ -31,7 +31,7 @@ public class MapBenchmark {
 
   @State(Scope.Benchmark)
   public static class BenchmarkState {
-    @Param({"10", "100", "1000"})
+    @Param({"10", "100", "1000", "10000"})
     public int mapSize;
 
     public Map<String, String> testMap;
@@ -86,10 +86,10 @@ public class MapBenchmark {
     kryoSerializer.deserialize(in);
   }
 
-  private static Map<String, String> getTestMap(int size) {
+  public static Map<String, String> getTestMap(int size) {
     Map<String, String> map = new HashMap<>(size);
     for (int i = 0; i < size; i++) {
-      map.put("abcdefg" + i, i + "uvwxyz测试123456");
+      map.put("abcdefg" + i, i + "uvwxyz@123456.com");
     }
     return map;
   }
